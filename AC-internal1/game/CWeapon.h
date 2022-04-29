@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-struct Weapon {
+struct CWeapon {
 	char pad_0000[12]; //0x0000
 	char(*weaponNamePtr)[16]; //0x000C
 	int32_t* clipPtr; //0x0010

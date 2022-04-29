@@ -1,4 +1,4 @@
-#include "ByteReplacer.h"
+#include "byte_replacer.h"
 #include "mem.h"
 
 ByteReplacer::ByteReplacer(uintptr_t addr, int numOfBytesToOverwrite, BYTE* bytesToInsert, int numOfBytesToInsert)

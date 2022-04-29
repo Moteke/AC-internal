@@ -1,31 +1,26 @@
 #pragma once
 
-#include "EntManager.h"
 #include "config.h"
-#include "Drafter.h"
-#include "ByteReplacer.h"
-#include "Matrix.h"
-#include "utils.h"
+#include "drafter.h"
+#include "byte_replacer.h"
+#include "matrix.h"
+#include "utils/utils.h"
 #include "mem.h"
+#include "game/CPlayer.h"
+#include "services/enemiesService.h"
+#include "offsets.h"
 #include <iostream>
 
 
-class Juice {
-	EntManager* manager;
-	Drafter* drafter;
-
+class Loop {
 public:
-	void doWork();
-	Juice(EntManager* e, Drafter* d);
+	static void loop();
 private:
-	void mHealth();
-	void mArmor();
-	void mGranades();
-	void mCarabineAmmo();
-	void mNoClip();
-	void ESP();
-	void perEnemyESP(Player* enemy, Matrix4x4<float>* modelViewMatrix, int* viewport);
-
-	ByteReplacer noClip1;
-	ByteReplacer noClip2;
+	static void mHealth();
+	static void mArmor();
+	static void mGranades();
+	static void mAmmo();
+	static void mNoClip();
+	static void ESP();
+	static void perEnemyESP(CPlayer* enemy, Matrix4x4<float>* modelViewMatrix, int* viewport);
 };

@@ -3,17 +3,17 @@
 
 #include <cmath>
 
-void Juice::doWork()
+void Loop::loop()
 {
 	mHealth();
 	mArmor();
 	mGranades();
-	mCarabineAmmo();
+	mAmmo();
 	mNoClip();
 	ESP();
 
 	// aimbot temp
-	if (manager->getNumberOfEnemiesSP() < 1 || !config::granadeHack) return;
+	/*if (manager->getNumberOfEnemiesSP() < 1 || !g->player.granadeHack) return;
 	DWORD base = utils::getBase();
 	Player** enemyPtr = readMemory<Player**>(base + offsets::enemiesSinglePlayer);
 
@@ -37,112 +37,75 @@ void Juice::doWork()
 	
 	std::cout << "SETTING XY: " << xy << ", Z: " << z << '\n';
 
-	manager->getPlayer()->cursorXY = { myCursor.x + xy, myCursor.y + z };
-	//manager->getPlayer()->cursorXY = { xy, z };
+	manager->getPlayer()->cursorXY = { myCursor.x + xy, myCursor.y + z };*/
 }
 
-Juice::Juice(EntManager* e, Drafter* d)
-	: noClip1(utils::getBase() + 0x7CAA5, 2, nullptr, 2),
-	  noClip2(utils::getBase() + 0x55E36, 2, nullptr, 2),
-	  manager(e),
-	  drafter(d)
+void Loop::mHealth()
 {
-	{
-		BYTE* a = new BYTE[2]{ 0x90, 0x90 };
-		noClip1.setBytesToInsert(a);
-	}
-	{
-		BYTE* a = new BYTE[2]{ 0x90, 0x90 };
-		noClip2.setBytesToInsert(a);
-	}
+	if (g->player.healthHack)
+		g_offsets->player->health = g->player.setHealth;
 }
 
-void Juice::mHealth()
+void Loop::mArmor()
 {
-	if (config::healthHack)
-		manager->getPlayer()->health = config::healthToSet;
+	if (g->player.armorHack)
+		g_offsets->player->armor = g->player.setArmor;
 }
 
-void Juice::mArmor()
+void Loop::mGranades()
 {
-	if (config::armorHack) 
-		manager->getPlayer()->armor = config::armorToSet;
-}
-
-void Juice::mGranades()
-{
-	if (config::granadeHack);
+	//if (config::granadeHack);
 		//manager->getPlayer()->grenades = 5;
 }
 
-void Juice::mCarabineAmmo()
+void Loop::mAmmo()
 {
-	if (config::carabineAmmoHack)
-		*(manager->getPlayer()->weaponActive->ammoPtr) = config::carabineAmmoToSet;
+	if (g->player.ammoHack)
+		*(g_offsets->player->weaponActive->ammoPtr) = 30;
+	
+	if (g->player.clipHack)
+		*(g_offsets->player->weaponActive->clipPtr) = 99;
 }
 
-void Juice::mNoClip()
+void Loop::mNoClip()
 {
-	if (config::noclipHack) {
+	static ByteReplacer noClip1{ utils::getBase() + 0x7CAA5, 2, new BYTE[2]{ 0x90, 0x90 }, 2 };
+	static ByteReplacer noClip2(utils::getBase() + 0x55E36, 2, new BYTE[2]{ 0x90, 0x90 }, 2);
+
+	if (g->movement.noclipHack) {
 		if(noClip1.apply() && noClip2.apply())
-			manager->getPlayer()->movementType = 4;
+			g_offsets->player->movementType = 4;
 	}
 	else {
 		if(noClip1.remove() && noClip2.remove())
-			manager->getPlayer()->movementType = 0;
+			g_offsets->player->movementType = 0;
 	}
 }
 
-void Juice::ESP()
+void Loop::ESP()
 {
-	if (!config::espHack) return;
+	if (!g->esp.enabled) return;
 	DWORD base = utils::getBase();
 
-	Matrix4x4<float>* modelView = (Matrix4x4<float>*)(base + offsets::modelViewMatrix);
-	int playerTeam = manager->getPlayer()->team;
+	Matrix4x4<float>* modelView = (Matrix4x4<float>*)(g_offsets->view.matrix);
 
 	GLint viewport[4];
-	drafter->getViewport(viewport);
+	g_drafter->getViewport(viewport);
 
-	if (!drafter->preCall()) return;
+	if (!g_drafter->preCall()) return;
 
-	if (!manager->isConnectedToServer()) {
-		Player** enemyPtr = readMemory<Player**>(base + offsets::enemiesSinglePlayer);
-
-		// singleplayer
-		for (int i = 0; i < manager->getNumberOfEnemiesSP(); ++i) {
-			perEnemyESP(*enemyPtr, modelView, viewport);
-			enemyPtr++;
-		}
-	}
-	else {
-		Player** enemyPtr = readMemory<Player**>(base + offsets::enemiesMultiPlayer);
-
-		if ((DWORD)enemyPtr > base) {
-			++enemyPtr; // skip first element which is always 0
-
-			// multiplayer
-			for (int i = 1; i < readMemory<int>(base + offsets::enemiesMultiPlayer + 8); ++i) {
-				Player* e = *enemyPtr;
-
-				if (e != 0) {
-					DWORD test = readMemory<DWORD>((DWORD)e);
-					if (test == 0x54AFEC || test == 0x54B014) perEnemyESP(e, modelView, viewport);
-				}
-
-				enemyPtr++;
-			}
-		}
+	for (CPlayer* enemy : g_enemiesService->getEnemies()) {
+		perEnemyESP(enemy, modelView, viewport);
 	}
 
-	drafter->afterCall();
+	g_drafter->afterCall();
 }
 
-void Juice::perEnemyESP(Player* enemy, Matrix4x4<float>* modelViewMatrix, int* viewport)
+void Loop::perEnemyESP(CPlayer* enemy, Matrix4x4<float>* modelViewMatrix, int* viewport)
 {
 	Vec3<float> color = Vec3<float>(1.0f, 0.0f, 0.0f);
 
-	if (config::esp_distinguishTeams && enemy->team == manager->getPlayer()->team) {
+	if (g->esp.distinguishTeams && enemy->team == g_offsets->player->team) {
 		color = Vec3<float>(0.0f, 1.0f, 0.0f);
 	}
 
@@ -152,25 +115,26 @@ void Juice::perEnemyESP(Player* enemy, Matrix4x4<float>* modelViewMatrix, int* v
 		enemyPos.z -= 2.0f; // center
 
 		if (utils::w2s_c(*modelViewMatrix, enemyPos, scr, viewport)) {
-			float distance = utils::distanceBetween(manager->getPlayer()->position, enemy->position);
+
+			float distance = utils::distanceBetween(g_offsets->player->position, enemy->position);
 			float scale = distance / 20.0f;
 
 			float boxWidth = 100.0f / scale;
 			float boxHeight = 200.0f / scale;
-			drafter->drawOutlineAround(scr, boxWidth, boxHeight, color);
+			g_drafter->drawOutlineAround(scr, boxWidth, boxHeight, color);
 
-			if (config::esp_showHealthBar) {
-				drafter->drawOutlineAround(Point{ scr.x + (boxWidth / 2) + (10.0f / scale), scr.y }, 8.0f / scale, boxHeight, color);
-				drafter->drawRectangle(Point{ scr.x + (boxWidth / 2) + (6.5f / scale), scr.y - (boxHeight / 2) + boxHeight * min((enemy->health / 100.0f), 1.0f) },
+			if (g->esp.showHealthBar) {
+				g_drafter->drawOutlineAround(Point{ scr.x + (boxWidth / 2) + (10.0f / scale), scr.y }, 8.0f / scale, boxHeight, color);
+				g_drafter->drawRectangle(Point{ scr.x + (boxWidth / 2) + (6.5f / scale), scr.y - (boxHeight / 2) + boxHeight * min((enemy->health / 100.0f), 1.0f) },
 					7.0f / scale,
 					boxHeight - boxHeight * min(((100 - enemy->health) / 100.0f), 1.0f),
 					Vec3<float>{0.0f, 1.0f, 0.0f});
 			}
 
-			if (config::esp_showNames) {
+			if (g->esp.showNames) {
 				Point bottomLeftCorner{ scr.x - boxWidth / 2, scr.y - boxHeight / 2 };
 				bottomLeftCorner.y -= 20.0f;
-				drafter->drawTextCentered(bottomLeftCorner, color, boxWidth, "%s", enemy->name);
+				g_drafter->drawTextCentered(bottomLeftCorner, color, boxWidth, "%s", enemy->name);
 			}
 		}
 	}

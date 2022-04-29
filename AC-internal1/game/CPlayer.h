@@ -1,18 +1,18 @@
 #pragma once
 
-#include "Vec2.h"
-#include "Vec3.h"
-#include "Weapon.h"
+#include "utils/Vec2.h"
+#include "utils/Vec3.h"
+#include "game/CWeapon.h"
 
 #include <cstdint>
 
 using Vector2 = Vec2<float>;
 using Vector3 = Vec3<float>;
 
-struct Player
+struct CPlayer
 {
 public:
-	char pad_0000[4]; //0x0000
+	int32_t vTable;
 	Vector3 positionHead; //0x0004
 	char pad_0010[24]; //0x0010
 	Vector3 position; //0x0028
@@ -32,14 +32,14 @@ public:
 	char pad_0215[247]; //0x0215
 	int32_t team; //0x030C
 	char pad_0310[52]; //0x0310
-	Weapon* weaponCarbine; //0x0344
-	Weapon* weaponShotgun; //0x0348
-	Weapon* weaponSubgun; //0x034C
-	Weapon* weaponSniper; //0x0350
-	Weapon* weaponAssault; //0x0354
-	Weapon* weaponGrenade; //0x0358
-	Weapon* weaponAkimbo; //0x035C
+	CWeapon* weaponCarbine; //0x0344
+	CWeapon* weaponShotgun; //0x0348
+	CWeapon* weaponSubgun; //0x034C
+	CWeapon* weaponSniper; //0x0350
+	CWeapon* weaponAssault; //0x0354
+	CWeapon* weaponGrenade; //0x0358
+	CWeapon* weaponAkimbo; //0x035C
 	char pad_0360[4]; //0x0360
-	Weapon* weaponActive; //0x0364
+	CWeapon* weaponActive; //0x0364
 	char pad_0368[536]; //0x0368
 }; 

@@ -1,12 +1,11 @@
 #include "Drafter.h"
+#include "utils/utils.h"
 
-void Drafter::initialize(HDC h)
+Drafter::Drafter()
 {
-	if (initialized) return;
-
 	HGLRC gameContext = wglGetCurrentContext();
 
-	handle = h;
+	handle = GetDC(utils::getWindow());
 	context = wglCreateContext(handle);
 
 	wglMakeCurrent(handle, context);
@@ -28,7 +27,38 @@ void Drafter::initialize(HDC h)
 	wglMakeCurrent(handle, gameContext);
 
 	initialized = true;
+	g_drafter = this;
 }
+
+//void Drafter::initialize(HDC h)
+//{
+//	if (initialized) return;
+//
+//	HGLRC gameContext = wglGetCurrentContext();
+//
+//	handle = h;
+//	context = wglCreateContext(handle);
+//
+//	wglMakeCurrent(handle, context);
+//
+//	glMatrixMode(GL_PROJECTION);
+//	glLoadIdentity();
+//
+//	// (left, bottom, right, top)
+//	GLint viewport[4];
+//	glGetIntegerv(GL_VIEWPORT, viewport);
+//
+//	glOrtho(0.0, viewport[2], 0.0, viewport[3], 0.0, 0.1);
+//	glMatrixMode(GL_MODELVIEW);
+//	glLoadIdentity();
+//	glClearColor(0, 0, 0, 1.0);
+//
+//	f = new Font{ 20 };
+//
+//	wglMakeCurrent(handle, gameContext);
+//
+//	initialized = true;
+//}
 
 void Drafter::drawOutlineAround(const Point<float> point, float width, float height, Vec3<float> color)
 {
@@ -54,10 +84,7 @@ void Drafter::getViewport(int* viewport)
 
 bool Drafter::preCall()
 {
-	if (!initialized) {
-		assert("preCall() called, but drafter not initialized!");
-		return false;
-	}
+	assert(initialized || "preCall() called, but drafter not initialized!");
 
 	gameContext = wglGetCurrentContext();
 	wglMakeCurrent(handle, context);

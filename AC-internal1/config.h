@@ -1,28 +1,59 @@
 #pragma once
 
-namespace config
-{
-	extern bool initialized;
-	extern bool show_demo_window;
-	extern bool show_another_window;
-	extern bool healthHack;
-	extern int healthToSet;
-	extern bool armorHack;
-	extern int armorToSet;
-	extern bool menuOpen;
-	extern bool granadeHack;
-	extern int granadeToSet;
-	extern bool carabineAmmoHack;
-	extern int carabineAmmoToSet;
+class Settings;
 
-	extern bool noclipHack;
+inline Settings* g{ };
 
-	extern bool espHack;
-	extern bool esp_distinguishTeams;
-	extern bool esp_showNames;
-	extern bool esp_showHealthBar;
+class Settings {
+	struct player {
+		bool healthHack = false;
+		int setHealth = 100;
+		bool armorHack = false;
+		int setArmor = 100;
+		bool granadeHack = false;
+		int setGranade = 5;
+		bool ammoHack = false;
+		int setAmmo = 90;
+		bool clipHack = false;
+		int setClip = 30;
+	};
 
-	extern bool isMultiplayer;
+	struct movement {
+		bool noclipHack = false;
+	};
 
-	extern bool closeMe;
-}
+	struct esp {
+		bool enabled = false;
+		bool distinguishTeams = false;
+		bool showNames = false;
+		bool showHealthBar = false;
+	};
+
+	struct game {
+		bool isMultiplayer = false;
+	};
+
+	struct menu {
+		bool open = false;
+		bool showDemo = false;
+		bool showAnother = false;
+	};
+
+public:
+	player player{};
+	movement movement{};
+	esp esp{};
+	game game{};
+	menu menu{};
+
+	bool unload = false;
+
+	Settings() {
+		g = this;
+	}
+
+	~Settings() {
+		g = nullptr;
+	}
+};
+

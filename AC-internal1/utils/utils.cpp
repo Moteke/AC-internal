@@ -12,6 +12,12 @@ DWORD utils::getBase() {
     return newBase;
 }
 
+HWND utils::getWindow()
+{
+	static HWND window = FindWindow(NULL, L"AssaultCube");
+	return window;
+}
+
 void utils::hookWithJump(DWORD hookAt, DWORD newFunc, int size) {
 	if (size > 12) return;
 	DWORD newOffset = newFunc - hookAt - 5;

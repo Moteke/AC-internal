@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Point.h"
-#include "Vec3.h"
+#include "utils/Vec3.h"
 
 #include <Windows.h>
 #include <gl/GL.h>
@@ -9,9 +9,13 @@
 #include <cstdio>
 #include <iostream>
 
+class Drafter;
+
+inline Drafter* g_drafter{};
+
 class Drafter {
 public:
-	void initialize(HDC handle);
+	Drafter();
 	void drawRectangle(Point<float> topLeft, float width, float height, Vec3<float> color);
 	void drawOutlineAround(Point<float> point, float width, float height, Vec3<float> color);
 	void drawText(Point<float> coords, Vec3<float> color, const char* fmt, ...);
@@ -22,9 +26,11 @@ public:
 		Call preCall() before drawing anything, and afterCall() afterwards. 
 		Those functions set Drafter's own device context.
 	*/
+
 	bool preCall();
 	void afterCall();
 	~Drafter();
+
 private:
 
 	class Font {

@@ -1,18 +1,18 @@
 // dllmain.cpp : Defines the entry point for the DLL application.
-#include "pch.h"
 
 #include "config.h"
 #include "mem.h"
 #include "Menu.h"
 #include "Imports.h"
-#include "Player.h"
 #include "EntManager.h"
-#include "utils.h"
+#include "utils/utils.h"
 #include "Point.h"
 #include "Juice.h"
 #include "Matrix.h"
 #include "Drafter.h"
 #include "Hook.h"
+#include "Offsets.h"
+#include "services/enemiesService.h"
 
 #include <Windows.h>
 #include <gl/GL.h>
@@ -22,27 +22,22 @@
 using wglSwapBuffers_t = int(__stdcall)(HDC handle);
 static wglSwapBuffers_t* oWglSwapBuffers;
 
-static Menu* menu;
+static std::unique_ptr<Menu> menu;
 static Imports* imports;
-static Juice* juice;
-static EntManager* manager;
 static Drafter* drafter;
 
 static int g_winWidth = 0;
 static int g_winHeight = 0;
-static HWND g_window;
 
 void __stdcall doSomeGraphicsStuff(HDC handle) {
-    drafter->initialize(handle);
-    manager->updateConfig();
     menu->render();
-    juice->doWork();
+    Loop::loop();
 
     // handle menu capturing
     if (GetAsyncKeyState(VK_INSERT) & 1) {
-        config::menuOpen = !config::menuOpen;
+        g->menu.open = !g->menu.open;
 
-        if (config::menuOpen) {
+        if (g->menu.open) {
             imports->SDL_ShowCursor(1);
             DWORD window = *(DWORD*)(utils::getBase() + 0x182884);
             imports->SDL_SetWindowGrab((void*)window, 0);
@@ -60,10 +55,10 @@ void __stdcall doSomeGraphicsStuff(HDC handle) {
         }
     }
     if (GetAsyncKeyState(VK_DELETE) & 1) {
-        config::closeMe = true;
+        g->unload = true;
 
-        if (config::menuOpen) {
-            config::menuOpen = false;
+        if (g->menu.open) {
+            g->menu.open = false;
 
 			imports->SDL_ShowCursor(0);
 			DWORD window = *(DWORD*)(utils::getBase() + 0x182884);
@@ -82,17 +77,16 @@ DWORD WINAPI partyStart(LPVOID lpParam) {
         std::cout << "DEBUG CONSOLE ATTACHED\n";
     }
 
-    menu = new Menu();
-    menu->initialize(L"AssaultCube");
+    auto settingsInstance = std::make_unique<Settings>();
+    auto offsetsInstance = std::make_unique<Offsets>();
+    auto enemiesInstance = std::make_unique<enemiesService>();
+    auto drafterInstance = std::make_unique<Drafter>();
+
+    menu = std::make_unique<Menu>();
+    menu->initialize();
 
     imports = new Imports();
     imports->initialize();
-
-    manager = new EntManager();
-    drafter = new Drafter();
-    juice = new Juice(manager, drafter);
-
-    g_window = FindWindow(NULL, L"AssaultCube");
 
     Hook swapBuffers{ (DWORD)imports->wglSwapBuffers, (DWORD)(&doSomeGraphicsStuff), 5 };
     oWglSwapBuffers = (wglSwapBuffers_t*)swapBuffers.getTrampoline();
@@ -100,8 +94,8 @@ DWORD WINAPI partyStart(LPVOID lpParam) {
 
     //oWglSwapBuffers = (wglSwapBuffers_t*)utils::trampolineSetup((DWORD)imports->wglSwapBuffers, 5, (DWORD)(&doSomeGraphicsStuff));
 
-    while (!config::closeMe) {
-        Sleep(1);
+    while (!g->unload) {
+        Sleep(50);
     }
 
     // cleanup
@@ -109,11 +103,15 @@ DWORD WINAPI partyStart(LPVOID lpParam) {
    /* config::menuOpen = false;*/
 
     Sleep(100); // wait so that we make sure that our swapbuffers hook is not working anymore
-    delete menu;
-    delete juice;
+    menu.reset();
+
     delete drafter;
-    delete manager;
     delete imports;
+
+    drafterInstance.reset();
+    enemiesInstance.reset();
+    offsetsInstance.reset();
+    settingsInstance.reset();
 
     fclose(stdout);
     FreeConsole();

@@ -1,6 +1,8 @@
 #include "Menu.h"
 #include "config.h"
 
+#include "utils/utils.h"
+
 // forward declaration from imgui_imp_win32.h
 IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -8,24 +10,21 @@ static WNDPROC oldWndProc;
 
 static LRESULT Wndproc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    if (config::menuOpen) {
+    if (g->menu.open) {
         ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
         return true;
     }
     return CallWindowProc(oldWndProc, hWnd, uMsg, wParam, lParam);
 }
 
-bool Menu::initialize(LPCWSTR gameWindowName)
+bool Menu::initialize()
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     ImGui::StyleColorsDark();
 
-    window = FindWindow(NULL, gameWindowName);
-    if (window == NULL) {
-        return false;
-    }
+    window = utils::getWindow();
 
     ImGui_ImplWin32_Init(window);
     ImGui_ImplOpenGL2_Init();
@@ -36,44 +35,33 @@ bool Menu::initialize(LPCWSTR gameWindowName)
 
 void Menu::render()
 {
-    if (!config::menuOpen) return;
+    if (!g->menu.open) return;
 
     ImGui_ImplOpenGL2_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
-    if (config::show_demo_window)
-        ImGui::ShowDemoWindow(&config::show_demo_window);
+    if (g->menu.showDemo)
+        ImGui::ShowDemoWindow(&g->menu.showDemo);
 
     {
         static float f = 0.0f;
         static int counter = 0;
 
-        ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+        ImGui::Begin("AC-Internal"); 
 
-        ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-        ImGui::Checkbox("Demo Window", &config::show_demo_window);      // Edit bools storing our window open/close state
-        if(!config::isMultiplayer) ImGui::Checkbox("Singleplayer", &showingSingleplayerWindow);
+        ImGui::Checkbox("Demo Window", &g->menu.showDemo);
+        ImGui::Checkbox("Self", &showingSingleplayerWindow);
         ImGui::Checkbox("ESP", &showingESPWindow);
-
-        ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-        ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-        if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-            counter++;
-        ImGui::SameLine();
-        ImGui::Text("counter = %d", counter);
-
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::End();
     }
 
-    if (config::show_another_window)
+    if (g->menu.showAnother)
     {
-        ImGui::Begin("Another Window", &config::show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+        ImGui::Begin("Another Window", &g->menu.showAnother);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
         ImGui::Text("Hello from another window!");
         if (ImGui::Button("Close Me"))
-            config::show_another_window = false;
+            g->menu.showAnother = false;
         ImGui::End();
     }
 
@@ -89,21 +77,42 @@ void Menu::showSingleplayerWindow()
     ImVec2 center = ImGui::GetMainViewport()->GetCenter();
     ImGui::SetNextWindowPos(center, ImGuiCond_FirstUseEver);
 
-    ImGui::Begin("Singleplayer", &showingSingleplayerWindow);
+    ImGui::Begin("Self", &showingSingleplayerWindow);
+
+    ImGui::Text("Stats");
 
 	if (ImGui::BeginTable("playerOptions", 2))
 	{
-		ImGui::TableNextColumn(); ImGui::SliderInt("Health", &config::healthToSet, 0, 10000);
-		ImGui::TableNextColumn(); ImGui::Checkbox("Set##health", &config::healthHack);
-		ImGui::TableNextColumn(); ImGui::SliderInt("Armor", &config::armorToSet, 0, 10000);
-		ImGui::TableNextColumn(); ImGui::Checkbox("Set##armor", &config::armorHack);
-		ImGui::TableNextColumn(); ImGui::SliderInt("Grenades", &config::granadeToSet, 0, 100);
-		ImGui::TableNextColumn(); ImGui::Checkbox("Set##grenades", &config::granadeHack);
-		ImGui::TableNextColumn(); ImGui::SliderInt("Weapon ammo", &config::carabineAmmoToSet, 0, 50);
-		ImGui::TableNextColumn(); ImGui::Checkbox("Set##weaponammo", &config::carabineAmmoHack);
-        ImGui::TableNextColumn(); ImGui::Checkbox("No clip", &config::noclipHack);
+		ImGui::TableNextColumn(); ImGui::SliderInt("Health", &g->player.setHealth, 0, 10000);
+        ImGui::TableNextColumn(); ImGui::Checkbox("Set##health", &g->player.healthHack);
+		ImGui::TableNextColumn(); ImGui::SliderInt("Armor", &g->player.setArmor, 0, 10000);
+		ImGui::TableNextColumn(); ImGui::Checkbox("Set##armor", &g->player.armorHack);
+		ImGui::TableNextColumn(); ImGui::SliderInt("Grenades", &g->player.setGranade, 0, 100);
+		ImGui::TableNextColumn(); ImGui::Checkbox("Set##grenades", &g->player.granadeHack);
+		ImGui::TableNextColumn(); ImGui::Checkbox("Unlimited ammo", &g->player.ammoHack);
+		ImGui::TableNextColumn(); ImGui::Checkbox("Unlimited clip", &g->player.clipHack);
 		ImGui::EndTable();
 	}
+
+    ImGui::Text("Movement");
+
+    ImGui::Checkbox("No clip", &g->movement.noclipHack);
+
+    ImGui::Text("Weapons");
+    //if (ImGui::BeginListBox("##weaponlist", ImVec2(-FLT_MIN, 5 * ImGui::GetTextLineHeightWithSpacing())))
+    //{
+    //    for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+    //    {
+    //        const bool is_selected = (item_current_idx == n);
+    //        if (ImGui::Selectable(items[n], is_selected))
+    //            item_current_idx = n;
+
+    //        // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+    //        if (is_selected)
+    //            ImGui::SetItemDefaultFocus();
+    //    }
+    //    ImGui::EndListBox();
+    //}
 
     ImGui::End();
 }
@@ -114,10 +123,10 @@ void Menu::showESPWindow()
 	ImGui::SetNextWindowPos(center, ImGuiCond_FirstUseEver);
 
     ImGui::Begin("ESP", &showingSingleplayerWindow);
-    ImGui::Checkbox("Enable##ESP", &config::espHack);
-    ImGui::Checkbox("Distinguish between teams", &config::esp_distinguishTeams);
-    ImGui::Checkbox("Show names", &config::esp_showNames);
-    ImGui::Checkbox("Show health bar", &config::esp_showHealthBar);
+    ImGui::Checkbox("Enable##ESP", &g->esp.enabled);
+    ImGui::Checkbox("Distinguish between teams", &g->esp.distinguishTeams);
+    ImGui::Checkbox("Show names", &g->esp.showNames);
+    ImGui::Checkbox("Show health bar", &g->esp.showHealthBar);
     ImGui::End();
 }
 

@@ -7,7 +7,7 @@
 
 class Menu {
 public:
-	bool initialize(LPCWSTR gameWindowName);
+	bool initialize();
 	void render();
 	void showSingleplayerWindow();
 	void showESPWindow();

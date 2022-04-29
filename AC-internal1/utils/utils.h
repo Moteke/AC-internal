@@ -11,6 +11,7 @@
 namespace utils
 {
     DWORD getBase();
+	HWND getWindow();
 	void hookWithJump(DWORD hookAt, DWORD newFunc, int size);
 	DWORD trampolineSetup(DWORD hookedFn, int stolenBytesNum, DWORD hookFn);
 
