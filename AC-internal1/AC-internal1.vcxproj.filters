@@ -75,10 +75,10 @@
     <ClInclude Include="utils\utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="juice.h">
+    <ClInclude Include="loop.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="point.h">
+    <ClInclude Include="utils\point.h">
       <Filter>Header Files\Game Classes</Filter>
     </ClInclude>
     <ClInclude Include="matrix.h">
@@ -143,7 +143,7 @@
     <ClCompile Include="utils\utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="juice.cpp">
+    <ClCompile Include="loop.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mem.cpp">

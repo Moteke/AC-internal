@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Point.h"
+#include "utils/Point.h"
 #include "utils/Vec3.h"
 
 #include <Windows.h>
