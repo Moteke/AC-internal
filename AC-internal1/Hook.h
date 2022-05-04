@@ -10,9 +10,9 @@ public:
 	~Hook();
 	void enable();
 	void disable();
-	DWORD getTrampoline();
+	DWORD getTrampoline() const;
 private:
-	void hookWithJump(DWORD hookAt, DWORD newFunc, int size);
+	void hookWithJump(DWORD hookAt, DWORD newFunc, int size) const;
 
 	DWORD trampoline{ 0 };
 	DWORD hookTarget{ 0 };

@@ -36,12 +36,12 @@ void Hook::disable()
 	protectMemory<DWORD[3]>(hookTarget, oldProtection);
 }
 
-DWORD Hook::getTrampoline()
+DWORD Hook::getTrampoline() const
 {
 	return trampoline;
 }
 
-void Hook::hookWithJump(DWORD hookAt, DWORD newFunc, int size)
+void Hook::hookWithJump(DWORD hookAt, DWORD newFunc, int size) const
 {
 	if (size > 12) return;
 	DWORD newOffset = newFunc - hookAt - 5;
