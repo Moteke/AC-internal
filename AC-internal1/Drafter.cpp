@@ -4,9 +4,15 @@
 Drafter::Drafter()
 {
 	HGLRC gameContext = wglGetCurrentContext();
+	if (gameContext == NULL) {
+		std::cout << "[ERROR] No game context for Drafter (wglGetCurrentContext() fail)." << '\n';
+		return;
+	}
 
 	handle = GetDC(utils::getWindow());
+	if (handle == NULL) std::cout << "[ERROR] No window handle for Drafter." << '\n';
 	context = wglCreateContext(handle);
+	if (context == NULL) std::cout << "[ERROR] wglCreateContext() fail for Drafter." << '\n';
 
 	wglMakeCurrent(handle, context);
 

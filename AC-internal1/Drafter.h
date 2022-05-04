@@ -22,6 +22,8 @@ public:
 	void drawTextCentered(Point<float> coords, Vec3<float> color, float width, const char* fmt, ...);
 	void getViewport(int* viewport);
 
+	bool isInitialized() const { return initialized; }
+
 	/*
 		Call preCall() before drawing anything, and afterCall() afterwards. 
 		Those functions set Drafter's own device context.

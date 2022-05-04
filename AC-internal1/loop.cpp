@@ -84,7 +84,7 @@ void Loop::mNoClip()
 
 void Loop::ESP()
 {
-	if (!g->esp.enabled) return;
+	if (!g->esp.enabled || g_drafter == nullptr) return;
 	DWORD base = utils::getBase();
 
 	Matrix4x4<float>* modelView = (Matrix4x4<float>*)(g_offsets->view.matrix);

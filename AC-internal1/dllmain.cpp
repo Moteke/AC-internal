@@ -22,12 +22,22 @@ static wglSwapBuffers_t* oWglSwapBuffers;
 
 static std::unique_ptr<Menu> menu;
 static Imports* imports;
-static Drafter* drafter;
+static Drafter* drafterInstance;
 
 static int g_winWidth = 0;
 static int g_winHeight = 0;
 
 void __stdcall doSomeGraphicsStuff(HDC handle) {
+
+    if (g_drafter == nullptr) {
+        delete drafterInstance;
+        drafterInstance = new Drafter{};
+
+        if (g_drafter == nullptr) {
+            std::cout << "[FATAL] couldn't initialize Drafter object: g_drafter is nullptr" << '\n';
+        }
+    }
+
     menu->render();
     Loop::loop();
 
@@ -78,7 +88,6 @@ DWORD WINAPI partyStart(LPVOID lpParam) {
     auto settingsInstance = std::make_unique<Settings>();
     auto offsetsInstance = std::make_unique<Offsets>();
     auto enemiesInstance = std::make_unique<enemiesService>();
-    auto drafterInstance = std::make_unique<Drafter>();
 
     menu = std::make_unique<Menu>();
     menu->initialize();
@@ -103,10 +112,14 @@ DWORD WINAPI partyStart(LPVOID lpParam) {
     Sleep(100); // wait so that we make sure that our swapbuffers hook is not working anymore
     menu.reset();
 
-    delete drafter;
+    /*
+        DrafterInstance is initialized in the swapbuffers hook
+        because we need the drawing thread for that purpose. 
+        However, we delete it here to clean up before closing.
+    */
+    delete drafterInstance;
     delete imports;
 
-    drafterInstance.reset();
     enemiesInstance.reset();
     offsetsInstance.reset();
     settingsInstance.reset();
