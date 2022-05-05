@@ -155,6 +155,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="aimbot\aimbot.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="drafter.h" />
     <ClInclude Include="byte_replacer.h" />
@@ -184,6 +185,7 @@
     <ClInclude Include="game\CWeapon.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="aimbot\aimbot.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="drafter.cpp" />
     <ClCompile Include="byte_replacer.cpp" />

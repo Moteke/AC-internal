@@ -29,6 +29,10 @@ class Settings {
 		bool showHealthBar = false;
 	};
 
+	struct aimbot {
+		bool enabled = false;
+	};
+
 	struct game {
 		bool isMultiplayer = false;
 	};
@@ -43,6 +47,7 @@ public:
 	player player{};
 	movement movement{};
 	esp esp{};
+	aimbot aimbot{};
 	game game{};
 	menu menu{};
 

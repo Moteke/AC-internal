@@ -1,5 +1,6 @@
 #define _USE_MATH_DEFINES
 #include "loop.h"
+#include "aimbot/aimbot.h"
 
 #include <cmath>
 
@@ -11,33 +12,7 @@ void Loop::loop()
 	mAmmo();
 	mNoClip();
 	ESP();
-
-	// aimbot temp
-	/*if (manager->getNumberOfEnemiesSP() < 1 || !g->player.granadeHack) return;
-	DWORD base = utils::getBase();
-	Player** enemyPtr = readMemory<Player**>(base + offsets::enemiesSinglePlayer);
-
-	Player* firstEnemy = *enemyPtr;
-	if (firstEnemy->health <= 0) return;
-
-	Vec3<float> enemyPos = firstEnemy->positionHead;
-	Vec3<float> ourPos = manager->getPlayer()->positionHead;
-
-	Vec3<float> viewVec{ enemyPos.x - ourPos.x, enemyPos.y - ourPos.y, enemyPos.z - ourPos.z };
-	float hyp = sqrt(viewVec.x * viewVec.x + viewVec.y * viewVec.y);
-
-	float xy = -atan2f(viewVec.x, viewVec.y) * (180.0f / M_PI) + 180.0f;
-	float z = atan2f(viewVec.z, hyp) * (180.0f / M_PI);
-
-	const Vec2<float> myCursor = manager->getPlayer()->cursorXY;
-	int smooth = 1.0;
-
-	xy = (xy - myCursor.x) / smooth;
-	z = (z - myCursor.y) / smooth;
-	
-	std::cout << "SETTING XY: " << xy << ", Z: " << z << '\n';
-
-	manager->getPlayer()->cursorXY = { myCursor.x + xy, myCursor.y + z };*/
+	aimbot();
 }
 
 void Loop::mHealth()
@@ -138,5 +113,17 @@ void Loop::perEnemyESP(CPlayer* enemy, Matrix4x4<float>* modelViewMatrix, int* v
 			}
 		}
 	}
+}
+
+void Loop::aimbot()
+{
+	if (!g->aimbot.enabled) return;
+
+	auto target{ Aimbot::getClosestToCursor() };
+	if (target == nullptr) return;
+
+	std::cout << "AIMBOT TARGET NAME: " << target->name << '\n';
+
+	Aimbot::aimAtPlayer(target);
 }
 

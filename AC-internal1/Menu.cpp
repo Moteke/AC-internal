@@ -53,6 +53,7 @@ void Menu::render()
         ImGui::Checkbox("Demo Window", &g->menu.showDemo);
         ImGui::Checkbox("Self", &showingSingleplayerWindow);
         ImGui::Checkbox("ESP", &showingESPWindow);
+        ImGui::Checkbox("Aimbot", &showingAimbotWindow);
         ImGui::End();
     }
 
@@ -67,6 +68,7 @@ void Menu::render()
 
     if (showingSingleplayerWindow) showSingleplayerWindow();
     if (showingESPWindow) showESPWindow();
+    if (showingAimbotWindow) showAimbotWindow();
 
     ImGui::Render();
     ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
@@ -127,6 +129,16 @@ void Menu::showESPWindow()
     ImGui::Checkbox("Distinguish between teams", &g->esp.distinguishTeams);
     ImGui::Checkbox("Show names", &g->esp.showNames);
     ImGui::Checkbox("Show health bar", &g->esp.showHealthBar);
+    ImGui::End();
+}
+
+void Menu::showAimbotWindow()
+{
+    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+    ImGui::SetNextWindowPos(center, ImGuiCond_FirstUseEver);
+
+    ImGui::Begin("Aimbot", &showingAimbotWindow);
+    ImGui::Checkbox("Enable##ESP", &g->aimbot.enabled);
     ImGui::End();
 }
 

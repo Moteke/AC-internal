@@ -23,4 +23,5 @@ private:
 	static void mNoClip();
 	static void ESP();
 	static void perEnemyESP(CPlayer* enemy, Matrix4x4<float>* modelViewMatrix, int* viewport);
+	static void aimbot();
 };
