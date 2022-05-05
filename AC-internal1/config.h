@@ -30,7 +30,9 @@ class Settings {
 	};
 
 	struct aimbot {
-		bool enabled = false;
+		bool enabled{ false };
+		float lockDistance{ 200.0f };
+		bool aimAtTeam{ false };
 	};
 
 	struct game {

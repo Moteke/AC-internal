@@ -1,6 +1,7 @@
 #define _USE_MATH_DEFINES
 
 #include "aimbot.h"
+#include "config.h"
 #include "offsets.h"
 #include "services/enemiesService.h"
 #include "utils/Vec2.h"
@@ -40,7 +41,7 @@ CPlayer* Aimbot::getClosestToCursor()
 		double y = angles.y - playerCursor.y;
 		double newDistance = x * x + y * y;
 
-		if (newDistance < bestDistance && enemy->health > 0) {
+		if (newDistance < bestDistance && isValidTarget(enemy)) {
 			bestDistance = newDistance;
 			bestPlayer = enemy;
 		}
@@ -59,4 +60,13 @@ Vec2<float> Aimbot::getAngleTo(Vec3<float> pos)
 	float y = atan2f(viewVec.z, hyp) * (180.0f / M_PI);
 
 	return Vec2<float>{x, y};
+}
+
+bool Aimbot::isValidTarget(CPlayer* player)
+{
+	if (player == nullptr) return false;
+	if (utils::distanceBetween(player->position, g_offsets->player->position) > g->aimbot.lockDistance) return false;
+	if (!g->aimbot.aimAtTeam && g_offsets->player->team == player->team) return false;
+
+	return player->health > 0;
 }

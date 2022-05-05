@@ -117,13 +117,18 @@ void Loop::perEnemyESP(CPlayer* enemy, Matrix4x4<float>* modelViewMatrix, int* v
 
 void Loop::aimbot()
 {
-	if (!g->aimbot.enabled) return;
+	static CPlayer* currentTarget{nullptr};
 
-	auto target{ Aimbot::getClosestToCursor() };
-	if (target == nullptr) return;
+	if (!g->aimbot.enabled) {
+		currentTarget = nullptr;
+		return;
+	}
+	
+	if(!Aimbot::isValidTarget(currentTarget))
+		currentTarget = Aimbot::getClosestToCursor();
 
-	std::cout << "AIMBOT TARGET NAME: " << target->name << '\n';
+	if (currentTarget == nullptr) return;
 
-	Aimbot::aimAtPlayer(target);
+	Aimbot::aimAtPlayer(currentTarget);
 }
 

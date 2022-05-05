@@ -139,6 +139,9 @@ void Menu::showAimbotWindow()
 
     ImGui::Begin("Aimbot", &showingAimbotWindow);
     ImGui::Checkbox("Enable##ESP", &g->aimbot.enabled);
+    ImGui::Checkbox("Aim at team", &g->aimbot.aimAtTeam);
+    ImGui::SliderFloat("Max lock distance", &g->aimbot.lockDistance, 5.0f, 1000.0f);
+
     ImGui::End();
 }
 
