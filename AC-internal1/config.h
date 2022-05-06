@@ -33,6 +33,7 @@ class Settings {
 		bool enabled{ false };
 		float lockDistance{ 200.0f };
 		bool aimAtTeam{ false };
+		bool lockOnlyWhenShooting{ false };
 	};
 
 	struct game {

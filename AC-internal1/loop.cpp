@@ -119,7 +119,7 @@ void Loop::aimbot()
 {
 	static CPlayer* currentTarget{nullptr};
 
-	if (!g->aimbot.enabled) {
+	if (!g->aimbot.enabled || (g->aimbot.lockOnlyWhenShooting && !(GetKeyState(VK_LBUTTON) & 0x8000))) {
 		currentTarget = nullptr;
 		return;
 	}

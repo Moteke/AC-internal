@@ -14,7 +14,8 @@ struct CPlayer
 public:
 	int32_t vTable;
 	Vector3 positionHead; //0x0004
-	char pad_0010[24]; //0x0010
+	char pad_0010[12]; //0x0010
+	Vector3 positionChange; //0x001C
 	Vector3 position; //0x0028
 	Vector2 cursorXY; //0x0034
 	char pad_003C[56]; //0x003C

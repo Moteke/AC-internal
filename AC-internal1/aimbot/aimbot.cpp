@@ -13,10 +13,8 @@
 
 void Aimbot::aimAtPlayer(CPlayer* player)
 {
-	Vec2 angles{ getAngleTo(player->positionHead) };
+	Vec2 angles{ getAngleTo(player->positionHead};
 	Vec2 playerCursor{ g_offsets->player->cursorXY };
-
-	std::cout << "ANGLES X: " << angles.x - playerCursor.x << " Y: " << angles.y - playerCursor.y << '\n';
 
 	playerCursor.x += angles.x - playerCursor.x;
 	playerCursor.y += angles.y - playerCursor.y;
