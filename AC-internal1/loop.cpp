@@ -13,6 +13,47 @@ void Loop::loop()
 	mNoClip();
 	ESP();
 	aimbot();
+
+	if (!g->player.clipHack) return;
+
+	// CODE BELOW FOR DEV ONLY 
+	// TRYING TO DO THE 'ENEMY VISIBLE' CHECK
+
+	/*DWORD isCrossing = 0x004C8450;
+
+	auto enemies = g_enemiesService->getEnemies();
+	for (auto enemy : enemies) {
+		auto player = g_offsets->player;
+
+		DWORD playerPos = (DWORD) (&(player->positionHead));
+		DWORD enemyPos = (DWORD) (&(enemy->positionHead));
+
+		DWORD result{ 0 };
+
+		Vec3<float> feedback{};
+		Vec3<float>* x = &feedback;
+
+		__asm {
+			push x;
+			push playerPos;
+			mov edx, enemyPos;
+			mov ecx, enemy;
+			call isCrossing;
+			mov result, eax;
+			add esp, 8;
+		}
+
+		std::cout << "ENEMY " << enemy->name;
+
+		if (result != 0)  std::cout << " is visible!\n";
+		else std::cout << " is NOT visible!\n";
+
+		std::cout << "FEEDBACK: X: " << feedback.x << ", Y: " << feedback.y << ", Z: " << feedback.z << '\n';
+
+		break;
+	}*/
+
+	
 }
 
 void Loop::mHealth()

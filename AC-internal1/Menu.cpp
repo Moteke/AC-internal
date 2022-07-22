@@ -141,6 +141,8 @@ void Menu::showAimbotWindow()
     ImGui::Checkbox("Enable##ESP", &g->aimbot.enabled);
     ImGui::Checkbox("Aim at team", &g->aimbot.aimAtTeam);
     ImGui::Checkbox("Lock only when shooting", &g->aimbot.lockOnlyWhenShooting);
+    ImGui::SliderFloat("Smooth", &g->aimbot.smooth, 1.0f, 50.0f);
+    ImGui::SliderFloat("TEST", &g->aimbot.test, 0.01f, 1.0f);
     ImGui::SliderFloat("Max lock distance", &g->aimbot.lockDistance, 5.0f, 1000.0f);
 
     ImGui::End();

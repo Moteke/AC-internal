@@ -13,11 +13,14 @@
 
 void Aimbot::aimAtPlayer(CPlayer* player)
 {
-	Vec2 angles{ getAngleTo(player->positionHead};
+	Vec2 angles{ getAngleTo(player->positionHead)};
 	Vec2 playerCursor{ g_offsets->player->cursorXY };
 
-	playerCursor.x += angles.x - playerCursor.x;
-	playerCursor.y += angles.y - playerCursor.y;
+	auto x = (angles.x - playerCursor.x) / g->aimbot.smooth;
+	auto y = (angles.y - playerCursor.y) / g->aimbot.smooth;
+
+	playerCursor.x += x / g->aimbot.test;
+	playerCursor.y += y / g->aimbot.test;
 
 	g_offsets->player->cursorXY = playerCursor;
 }

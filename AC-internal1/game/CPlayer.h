@@ -28,7 +28,8 @@ public:
 	int32_t armor; //0x00F0
 	char pad_00F4[112]; //0x00F4
 	int32_t shootingState; //0x0164
-	char pad_0168[157]; //0x0168
+	char pad_0168[156]; //0x0168
+	bool isShooting; // 0x204
 	char name[16]; //0x0205
 	char pad_0215[247]; //0x0215
 	int32_t team; //0x030C
