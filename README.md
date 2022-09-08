@@ -1,4 +1,4 @@
-# AC-internal - internal cheat to [AssaultCube 1.3.0.1](https://drive.google.com/file/d/1AQOHXvdq4A0rBO_TYrbWzuHYO4mA1Aag/view?usp=sharing).
+# AC-internal - internal mod to [AssaultCube 1.3.0.1](https://drive.google.com/file/d/1AQOHXvdq4A0rBO_TYrbWzuHYO4mA1Aag/view?usp=sharing).
 ## Usage
 1. Add the main directory to the Include Directories in the VS project.
 2. Add imgui directory to Additional Include Directories.
